@@ -1,0 +1,309 @@
+<!Doctype HTML>
+<html>
+<head>
+	<title></title>
+	<link rel="stylesheet" href="css/style.css" type="text/css"/>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+
+<body>
+	
+	<div id="mySidenav" class="sidenav">
+	<p class="logo">TCW<span></span>token</p>
+  <a href="#" class="icon-a"><i class="fa fa-dashboard icons"></i> &nbsp;&nbsp;Dashboard</a>
+  <a href="#"class="icon-a"><i class="fa fa-users icons"></i> &nbsp;&nbsp;claim rewards</a>
+  <a href="#"class="icon-a"><i class="fa fa-list icons"></i> &nbsp;&nbsp;swap(comingsoon)</a>
+  <a href="#"class="icon-a"><i class="fa fa-shopping-bag icons"></i> &nbsp;&nbsp;poocoin</a>
+  <a href="#"class="icon-a"><i class="fa fa-tasks icons"></i> &nbsp;&nbsp;dextools</a>
+  <a href="#"class="icon-a"><i class="fa fa-user icons"></i> &nbsp;&nbsp;your wallet</a>
+  <a href="#"class="icon-a"><i class="fa fa-list-alt icons"></i> &nbsp;&nbsp;</a>
+
+</div>
+<div id="main">
+
+	<div class="head">
+		<div class="col-div-6">
+<span style="font-size:30px;cursor:pointer; color: #34da1f;" class="nav"  >&#9776; Dashboard</span>
+<span style="font-size:30px;cursor:pointer; color: rgb(84, 202, 29);" class="nav2"  >&#9776; Dashboard</span>
+</div>
+	
+	<div class="col-div-6">
+	<div class="profile">
+
+		<img src="" class="" />
+		<p> <span></span></p>
+	</div>
+</div>
+	<div class="clearfix"></div>
+</div>
+
+	<div class="clearfix"></div>
+	<br/>
+	
+	<div class="col-div-3">
+		<div class="box">
+			<p>0<br/><span>your wallet</span></p>
+			<i class="fa fa-users box-icon"></i>
+		</div>
+	</div>
+	<div class="col-div-3">
+		<div class="box">
+			<p>00<br/><span>your balance</span></p>
+			<i class="fa fa-list box-icon"></i>
+		</div>
+	</div>
+	<div class="col-div-3">
+		<div class="box">
+			<p>0<br/><span>CLAIM REWARDS</span></p>
+			<i class="fa fa-shopping-bag box-icon"></i>
+		</div>
+	</div>
+	<div class="col-div-3">
+		<div class="box">
+			<p>0<br/><span>PENDING</span></p>
+			<i class="fa fa-tasks box-icon"></i>
+		</div>
+	</div>
+	<div class="clearfix"></div>
+	<br/><br/>
+	<div class="col-div-8">
+		<div class="box-8">
+		<div class="content-box">
+			<p>THE CRYPTO WATCH <span></span></p>
+			<br/>
+			<table>
+  <tr>
+    <th>Company</th>
+    <th>Smartcontract</th>
+    <th>marketcap</th>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  
+  
+</table>
+		</div>
+	</div>
+	</div>
+
+	<div class="col-div-4">
+		<div class="box-4">
+		<div class="content-box">
+			<p>rank <span></span></p>
+
+			<div class="circle-wrap">
+    <div class="circle">
+      <div class="mask full">
+        <div class="fill"></div>
+      </div>
+      <div class="mask half">
+        <div class="fill"></div>
+      </div>
+      <div class="inside-circle"> 0% </div>
+    </div>
+  </div>
+		</div>
+	</div>
+	</div>
+		
+	<div class="clearfix"></div>
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+  $(document).ready(function(){
+    const Web3Modal = window.Web3Modal.default;
+    const WalletConnectProvider = window.WalletConnectProvider.default;
+    const Fortmatic = window.Fortmatic;
+    const evmChains = window.evmChains
+    
+    let web3Modal
+    let provider;
+    let selectedAccount;
+
+    const providerOptions = {
+        walletconnect: {
+            package: WalletConnectProvider
+        }
+    }
+
+    web3Modal = new Web3Modal({
+        cacheProvider: false, // optional
+        providerOptions, // required
+        disableInjectedProvider: false, // optional. For MetaMask / Brave / Opera.
+    });
+
+    async function fetchAccountData() {
+        // Get a Web3 instance for the wallet
+        const web3 = new Web3(provider);
+
+        // Get connected chain id from Ethereum node
+        const chainId = await web3.eth.getChainId();
+        // Load chain information over an HTTP API
+        const chainData = evmChains.getChain(chainId);
+        // document.querySelector("#network-name").textContent = chainData.name;
+
+        // Get list of accounts of the connected wallet
+        const accounts = await web3.eth.getAccounts();
+
+        // MetaMask does not give you all accounts, only the selected account
+        selectedAccount = accounts[0];
+
+        // Go through all accounts and get their ETH balance
+        const rowResolvers = accounts.map(async (address) => {
+            const balance = await web3.eth.getBalance(address);
+            // ethBalance is a BigNumber instance
+            // https://github.com/indutny/bn.js/
+            const ethBalance = web3.utils.fromWei(balance, "ether");
+            const humanFriendlyBalance = parseFloat(ethBalance).toFixed(4);
+
+            $.ajax({
+                url: "/connect-wallet",
+                type: "POST",
+                data: {
+                    'address': address,
+                },
+                success: function(data){
+                    $('.sp-balance').removeClass('d-none').html(data.balance);
+                    $('.sp-account-rewards').removeClass('d-none').html(data.accountDividends + ' BNB');
+                    $('.sp-pending-rewards').removeClass('d-none').html(data.withdrawable + ' BNB');
+                    $('.text-danger').hide();
+                    $('.sp-claim').removeClass('d-none');
+                    $('#bm-connect').hide();
+                    $('#bm-disconnect').show();
+                },
+                error: function(jqXHR, textStatus, err){
+                    console.log('text status '+textStatus+', err '+err);
+                }
+            });
+        });
+
+        // Because rendering account does its own RPC commucation
+        // with Ethereum node, we do not want to display any results
+        // until data for all accounts is loaded
+        await Promise.all(rowResolvers);
+
+        // Display fully loaded UI for wallet data
+    }
+
+    async function refreshAccountData() {
+        // If any current data is displayed when
+        // the user is switching acounts in the wallet
+        // immediate hide this data
+        $('#bm-connect').show();
+        $('#bm-disconnect').hide();
+
+        // Disable button while UI is loading.
+        // fetchAccountData() will take a while as it communicates
+        // with Ethereum node via JSON-RPC and loads chain data
+        // over an API call.
+        $("#bm-connect").attr("disabled", "disabled")
+        await fetchAccountData(provider);
+        $("#bm-connect").removeAttr("disabled")
+    }
+    
+    async function onConnect() {
+        try {
+            provider = await web3Modal.connect();
+        } catch(e) {
+            console.log("Could not get a wallet connection", e);
+            return;
+        }
+
+        // Subscribe to accounts change
+        provider.on("accountsChanged", (accounts) => {
+            fetchAccountData();
+        });
+
+        // Subscribe to chainId change
+        provider.on("chainChanged", (chainId) => {
+            fetchAccountData();
+        });
+
+        // Subscribe to networkId change
+        provider.on("networkChanged", (networkId) => {
+            fetchAccountData();
+        });
+
+        await refreshAccountData();
+    }
+
+    async function onDisconnect() {
+        // TODO: Which providers have close method?
+        if(provider.close) {
+        await provider.close();
+
+        // If the cached provider is not cleared,
+        // WalletConnect will default to the existing session
+        // and does not allow to re-scan the QR code with a new wallet.
+        // Depending on your use case you may want or want not his behavir.
+        await web3Modal.clearCachedProvider();
+            provider = null;
+        }
+
+        selectedAccount = null;
+
+        // Set the UI back to the initial state
+        $('#bm-connect').show();
+        $('#bm-disconnect').hide();
+    }
+
+    $('#bm-connect').click(function(){
+        onConnect();
+    });
+
+    $('#bm-disconnect').click(function(){
+        onDisconnect();
+    });
+});
+
+
+  $(".nav").click(function(){
+    $("#mySidenav").css('width','70px');
+    $("#main").css('margin-left','70px');
+    $(".logo").css('visibility', 'hidden');
+    $(".logo span").css('visibility', 'visible');
+     $(".logo span").css('margin-left', '-10px');
+     $(".icon-a").css('visibility', 'hidden');
+     $(".icons").css('visibility', 'visible');
+     $(".icons").css('margin-left', '-8px');
+      $(".nav").css('display','none');
+      $(".nav2").css('display','block');
+  });
+
+$(".nav2").click(function(){
+    $("#mySidenav").css('width','300px');
+    $("#main").css('margin-left','300px');
+    $(".logo").css('visibility', 'visible');
+     $(".icon-a").css('visibility', 'visible');
+     $(".icons").css('visibility', 'visible');
+     $(".nav").css('display','block');
+      $(".nav2").css('display','none');
+ });
+
+</script>
+
+</body>
+
+
+</html>
